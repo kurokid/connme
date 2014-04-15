@@ -1,7 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
+import sip
+sip.setapi('QString', 2)
 from PyQt4 import QtGui, QtCore, QtNetwork
-from connme.connmeMain import connme
+from connmeMain import connme
 import sys,os
 
 class SingleApplicationWithMessaging(QtGui.QApplication):
@@ -28,7 +30,8 @@ class SingleApplicationWithMessaging(QtGui.QApplication):
     def handleMessage(self):
         socket = self._server.nextPendingConnection()
         if socket.waitForReadyRead(self._timeout):
-            self.messageAvailable.emit(bytes(socket.readAll().data().decode('utf-8')))
+            self.messageAvailable.emit(
+                socket.readAll().data().decode('utf-8'))
             socket.disconnectFromServer()
         else:
             QtCore.qDebug(socket.errorString())
@@ -43,7 +46,9 @@ class SingleApplicationWithMessaging(QtGui.QApplication):
             if not socket.waitForConnected(self._timeout):
                 print(socket.errorString())
                 return False
-            socket.write(str(message).encode('utf-8'))
+            if not isinstance(message, bytes):
+                message = message.encode('utf-8')
+            socket.write(message)
             if not socket.waitForBytesWritten(self._timeout):
                 print(socket.errorString())
                 return False
