@@ -5,7 +5,7 @@ import sys, time, subprocess, os
 from PyQt4 import QtCore, QtGui, QtNetwork
 from submodule import mainWindow, mainTray, interfaceList, worker
 
-KONFIGURASI = '../data/connme.conf'
+KONFIGURASI = '/etc/connme.conf'
 
 class connme(QtCore.QObject):
 
