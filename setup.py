@@ -25,9 +25,7 @@ setup(
     author='Ikhwan Setiawan',
     author_email='kuro.kid@gmail.com',
     url='https://github.com/kurokid/connme',
-    packages=[
-        'connme',
-    ],
+    packages=find_packages(exclude=['tests']),
     package_dir={'connme': 'connme'},
     include_package_data=True,
     package_data = {
