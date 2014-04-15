@@ -1,11 +1,13 @@
 ===============================
-connme
+Connme
 ===============================
 
 Client for Hostapd
 A simple application to facilitate the creation of the Wireless Access Point using hostapd.
 
-* Free software: GPL license
+
+### LICENSE
+	Free software: GPL license
 
 Features
 --------
