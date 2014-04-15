@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from PyQt4 import QtGui, QtCore, QtNetwork
-from connmeMain import connme
+from connme.connmeMain import connme
 import sys,os
 
 class SingleApplicationWithMessaging(QtGui.QApplication):
@@ -28,8 +28,7 @@ class SingleApplicationWithMessaging(QtGui.QApplication):
     def handleMessage(self):
         socket = self._server.nextPendingConnection()
         if socket.waitForReadyRead(self._timeout):
-            self.messageAvailable.emit(
-                bytes(socket.readAll().data().decode('utf-8'))
+            self.messageAvailable.emit(bytes(socket.readAll().data().decode('utf-8')))
             socket.disconnectFromServer()
         else:
             QtCore.qDebug(socket.errorString())

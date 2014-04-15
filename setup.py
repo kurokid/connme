@@ -30,6 +30,10 @@ setup(
     ],
     package_dir={'connme': 'connme'},
     include_package_data=True,
+    package_data = {
+        # '': ['*.txt', '*.rst'],
+        'connme': ['data/*.html', 'data/*.css'],
+    },
     install_requires=[
         'hostapd', 
         'dnsmasq', 
