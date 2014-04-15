@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Connme
+GenericName=Hotspot Creator
+Comment=Create hotspot with ease
+Exec=connme
+Terminal=false
+Icon=connme.png
+Type=Application
+Categories=Network;FileTransfer;
+Version=0.5
