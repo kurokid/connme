@@ -229,4 +229,4 @@ class myDialog(QtGui.QMainWindow, mainWindow.Ui_MainWindow):
         self.comboBox.setEnabled(status)
         self.comboBox_3.setEnabled(status)
         self.vinterface_cbox.setEnabled(status)
-        self.ui.pushButton.setEnabled(status)
+        self.pushButton.setEnabled(status)
