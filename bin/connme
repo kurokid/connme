@@ -57,8 +57,6 @@ class SingleApplicationWithMessaging(QtGui.QApplication):
         return False
 
 def main():
-    euid = os.geteuid()
-    os.chdir(sys.path[0])
     key = 'connme'
     app = SingleApplicationWithMessaging(sys.argv, key)
     if app.isRunning():
@@ -72,7 +70,8 @@ def main():
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
-
+    euid = os.geteuid()
+    os.chdir(sys.path[0])
     if euid != 0:
         if os.path.exists("/usr/bin/gksu"):
             args = ['gksu', sys.executable] + sys.argv + [os.environ]
