@@ -37,6 +37,7 @@ setup(
         'dnsmasq', 
         'iptables', 
         'iw',
+        'python2-pyqt'
     ],
     data_files=[
         ('share/applications', ['data/connme.desktop']),

@@ -19,3 +19,6 @@ Features
 ### TODO
 * Limit speed for each client
 * Add description and image based on client mac address
+
+### Thanks To
+* Oblique <https://github.com/oblique> for his "create_ap" bash script

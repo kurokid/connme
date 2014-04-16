@@ -88,8 +88,7 @@ class connme(QtCore.QObject):
                 ARGS.append('--no-virt')
             self.mainProc.start('tether', ARGS)
         else:
-            #for i in xrange(self.ui.tableWidget.rowCount()):
-             #   self.ui.tableWidget.removeRow(0)
+            self.ui.pushButton.setEnabled(False)
             self.secondProc.terminate()
             subprocess.Popen("killall hostapd", stdout=subprocess.PIPE, shell=True)
 
@@ -127,7 +126,6 @@ class connme(QtCore.QObject):
     def mainStarted(self):
         self.ui.lineEdit_3.setText("Configuring...")
         self.ui.changeState(False)
-        self.ui.pushButton.setEnabled(False)
 
     def mainFinished(self, exitCode):
         self.wpaStopped()
@@ -230,3 +228,5 @@ class myDialog(QtGui.QMainWindow, mainWindow.Ui_MainWindow):
         self.comboBox_2.setEnabled(status)
         self.comboBox.setEnabled(status)
         self.comboBox_3.setEnabled(status)
+        self.vinterface_cbox.setEnabled(status)
+        self.ui.pushButton.setEnabled(status)
