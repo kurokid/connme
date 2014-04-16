@@ -415,18 +415,9 @@ else
     # dnsmasq config (dhcp + dns)
     cat << EOF > $CONFDIR/dnsmasq.conf
 interface=${WIFI_IFACE}
-domain-needed
-bogus-priv
-port=5443
-domain=WORKGROUP
 bind-interfaces
 dhcp-range=${GATEWAY%.*}.1,${GATEWAY%.*}.254,255.255.255.0,24h
-dhcp-option=3,${GATEWAY}
-dhcp-option=6,8.8.8.8,8.8.4.4,${GATEWAY}
-dhcp-option=19,0           
-dhcp-option=44,0.0.0.0     
-dhcp-option=45,0.0.0.0     
-dhcp-option=46,8
+dhcp-option=option:router,${GATEWAY}
 EOF
     [[ $ETC_HOSTS -eq 0 ]] && echo no-hosts >> $CONFDIR/dnsmasq.conf
 fi
