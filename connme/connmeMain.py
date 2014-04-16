@@ -58,6 +58,8 @@ class connme(QtCore.QObject):
         for i in self.client.values():
             if i[3] == self.ui.tableWidget.item(row,0).text():
                 clientMAC = i[1]
+            elif i[2] == self.ui.tableWidget.item(row,0).text():
+                clientMAC = i[1]
 
         if self.ui.tableWidget.item(row,1).text() == "On":
             subprocess.Popen("iptables -I FORWARD -p ALL -m mac --mac-source %s -j DROP" % clientMAC, stdout=subprocess.PIPE, shell=True)

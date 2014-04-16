@@ -3,12 +3,7 @@
 
 import os
 import sys
-
-
-try:
-    from setuptools import setup, find_packages
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup, find_packages
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
@@ -33,11 +28,8 @@ setup(
         'connme': ['data/*.html', 'data/*.css'],
     },
     install_requires=[
-        'hostapd', 
-        'dnsmasq', 
-        'iptables', 
-        'iw',
-        'python2-pyqt'
+        'setuptools',
+        'pyqt4'
     ],
     data_files=[
         ('share/applications', ['data/connme.desktop']),
