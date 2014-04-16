@@ -14,7 +14,7 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 setup(
     name='connme',
-    version='0.1.0',
+    version='0.5',
     description='Client untuk Hostapd',
     long_description=readme + '\n\n' + history,
     author='Ikhwan Setiawan',
