@@ -28,5 +28,9 @@ Features
 ### LICENSE
 Free software: GPL license
 
+### INSTALL
+* Arch Linux
+	https://aur.archlinux.org/packages/connme-git
+
 ### Thanks To
 * Oblique <https://github.com/oblique> for his "create_ap" bash script
