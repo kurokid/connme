@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ $(which pkexec) ]; then
-        pkexec --disable-internal-agent "/usr/lib/python2.7/site-packages/connme/connme" "$@"
+        pkexec --disable-internal-agent "/usr/lib/python2.7/site-packages/connme/connme.py" "$@"
 else
-        /usr/lib/python2.7/site-packages/connme/connme "$@"
+        /usr/lib/python2.7/site-packages/connme/connme.py "$@"
 fi
