@@ -29,14 +29,15 @@ setup(
     },
     install_requires=[
         'setuptools',
-        'pyqt4'
+        'qt4'
     ],
     data_files=[
         ('share/applications', ['data/connme.desktop']),
         ('share/pixmaps', ['data/connme.png']),
         ('/etc', ['data/connme.conf']),
+	('/usr/share/polkit-1/actions', ['data/org.freedesktop.pkexec.connme.policy']),
     ],
-    scripts = ['bin/connme', 'bin/tether'],
+    scripts = ['bin/connme', 'bin/tether', 'bin/connme_polkit'],
     license="GPL",
     zip_safe=False,
     keywords='connme',

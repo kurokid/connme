@@ -4,6 +4,13 @@ import sys, time, subprocess, os
 from PyQt4 import QtCore, QtGui, QtNetwork
 from submodule import mainWindow, mainTray, interfaceList, worker
 
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    def _fromUtf8(s):
+        return s
+
+
 KONFIGURASI = '/etc/connme.conf'
 
 class connme(QtCore.QObject):
@@ -37,41 +44,49 @@ class connme(QtCore.QObject):
         self.ui.tableWidget.cellDoubleClicked.connect(self.blockNetwork)
         self.ui.pushButton.clicked.connect(self.buttonClicked)
         self.connect(self.mainProc, QtCore.SIGNAL("readyReadStandardOutput()"),self.logOutput)
+        self.connect(self, QtCore.SIGNAL("translated"), self.processNewClient)
 
     def addClient(self, mac):
-        hostname = self.translateClient(mac)
+        hostname = self.getHostname(mac)
+        IP = self.getIp(mac)
+        self.emit(QtCore.SIGNAL("translated"), IP, hostname)
+
+    def processNewClient(self, IP, hostname):
         self.ui.tableWidget.insertRow(self.ui.tableWidget.rowCount())
         row = self.ui.tableWidget.rowCount()
         item = QtGui.QTableWidgetItem(hostname)
         item.setTextAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter|QtCore.Qt.AlignCenter)
         item.setFlags(QtCore.Qt.ItemIsEnabled)
+        icon = QtGui.QIcon.fromTheme(_fromUtf8("computer"))
+        item.setIcon(icon)
         self.ui.tableWidget.setItem(row-1,0,item)
-        item = QtGui.QTableWidgetItem("On")
+        item = QtGui.QTableWidgetItem(IP)
         item.setTextAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter|QtCore.Qt.AlignCenter)
         item.setFlags(QtCore.Qt.ItemIsEnabled)
+        icon = QtGui.QIcon.fromTheme(_fromUtf8("network-receive"))
+        item.setIcon(icon)
         self.ui.tableWidget.setItem(row-1,1,item)
         self.jmlClient += 1
         self.ui.lineEdit_3.setText("%s Client" % self.jmlClient)
 
     def blockNetwork(self, row, column):
-        item = QtGui.QTableWidgetItem()
         for i in self.client.values():
-            if i[3] == self.ui.tableWidget.item(row,0).text():
+            if i[2] == self.ui.tableWidget.item(row,0).text():
                 clientMAC = i[1]
-            elif i[2] == self.ui.tableWidget.item(row,0).text():
-                clientMAC = i[1]
+                clientIP = i[2]
+        item = QtGui.QTableWidgetItem(clientIP)
 
-        if self.ui.tableWidget.item(row,1).text() == "On":
-            subprocess.Popen("iptables -I FORWARD -p ALL -m mac --mac-source %s -j DROP" % clientMAC, stdout=subprocess.PIPE, shell=True)
-            self.xClient.append(clientMAC)
-            item.setText("Off")
+        if self.ui.tableWidget.item(row,1).text() in self.xClient:
+            subprocess.Popen("iptables -D FORWARD -p ALL -m mac --mac-source %s -j DROP" % clientMAC, stdout=subprocess.PIPE, shell=True)
+            self.xClient.pop(self.xClient.index(clientMAC))
+            item.setIcon(QtGui.QIcon.fromTheme(_fromUtf8("network-receive")))
             item.setTextAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter|QtCore.Qt.AlignCenter)
             item.setFlags(QtCore.Qt.ItemIsEnabled)
             self.ui.tableWidget.setItem(row,1,item)
         else:
-            subprocess.Popen("iptables -D FORWARD -p ALL -m mac --mac-source %s -j DROP" % clientMAC, stdout=subprocess.PIPE, shell=True)
-            self.xClient.pop(self.xClient.index(clientMAC))
-            item.setText("On")
+            subprocess.Popen("iptables -I FORWARD -p ALL -m mac --mac-source %s -j DROP" % clientMAC, stdout=subprocess.PIPE, shell=True)
+            self.xClient.append(clientMAC)
+            item.setIcon(QtGui.QIcon.fromTheme(_fromUtf8("network-offline")))
             item.setTextAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter|QtCore.Qt.AlignCenter)
             item.setFlags(QtCore.Qt.ItemIsEnabled)
             self.ui.tableWidget.setItem(row,1,item)
@@ -90,12 +105,19 @@ class connme(QtCore.QObject):
                 ARGS.append('--no-virt')
             self.mainProc.start('tether', ARGS)
         else:
+            self.cleanup()
             self.ui.pushButton.setEnabled(False)
             self.secondProc.terminate()
             subprocess.Popen("killall hostapd", stdout=subprocess.PIPE, shell=True)
 
+    def cleanup(self):
+        for client in self.xClient:
+            subprocess.Popen("iptables -D FORWARD -p ALL -m mac --mac-source %s -j DROP" % client, stdout=subprocess.PIPE, shell=True)
+        for i in xrange(self.ui.tableWidget.rowCount()):
+                self.ui.tableWidget.removeRow(0)
+
     def delClient(self, mac):
-        items = self.ui.tableWidget.findItems(self.translateClient(mac),QtCore.Qt.MatchExactly)
+        items = self.ui.tableWidget.findItems(self.getIp(mac),QtCore.Qt.MatchExactly)
         self.ui.tableWidget.removeRow(self.ui.tableWidget.indexFromItem(items[0]).row())
         self.jmlClient -= 1
         self.ui.lineEdit_3.setText("%s Client" % self.jmlClient)
@@ -106,7 +128,22 @@ class connme(QtCore.QObject):
             self.secondProc.start('hostapd_cli -a %s' % self.address)
 
     def getConfig(self):
+	TEXT = """ssid=kurokid-wap
+source=wlp1s0
+share=wlp0s18f2u1
+security=0
+password=123456
+vinterface=True
+"""
         config = {}
+        try:
+            with open(KONFIGURASI, 'r') as configFile:
+                pass
+        except IOError:
+            f = open(KONFIGURASI, 'w')
+            f.write(TEXT)
+            f.seek(0)
+            f.close
         with open(KONFIGURASI, 'r') as configFile:
             for baris in configFile.readlines():
                 if baris.strip() == "":
@@ -116,12 +153,39 @@ class connme(QtCore.QObject):
                     config[baris.split('=')[0]] = baris.split('=')[1]
         return(config)
 
+    def getHostname(self,clientAddress):
+        error = 0
+        while error != 10:
+            try:
+                if self.client[clientAddress][3] == '*':
+                    return(self.client[clientAddress][2])
+                else:
+                    return(self.client[clientAddress][3])
+                break
+            except KeyError:
+                self.updateData()
+                time.sleep(2)
+                error = error + 1
+        return(clientAddress)
+
+    def getIp(self,clientAddress):
+        error = 0
+        while error != 10:
+            try:
+                return(self.client[clientAddress][2])
+                break
+            except KeyError:
+                self.updateData()
+                time.sleep(2)
+                error = error + 1
+        return(clientAddress)
+
     def logOutput(self):
         output = self.mainProc.readAllStandardOutput()
         cursor = self.ui.txt_log.textCursor()
         cursor.movePosition(cursor.End)
         cursor.insertText(str(output))
-        if output.contains('Using interface'):
+        if output.contains('hotspot starting'):
             self.wpaRunning()
         self.ui.txt_log.ensureCursorVisible()
 
@@ -162,21 +226,6 @@ class connme(QtCore.QObject):
 
     def showGui(self):
         self.ui.show()
-
-    def translateClient(self,clientAddress):
-        error = 0
-        while error != 15:
-            try:
-                if self.client[clientAddress][3] == '*':
-                    return(self.client[clientAddress][2])
-                else:
-                    return(self.client[clientAddress][3])
-                break
-            except KeyError:
-                self.updateData()
-                time.sleep(2)
-                error = error + 1
-        return(clientAddress)
 
     def updateData(self):
         self.client = {}
