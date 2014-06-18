@@ -37,7 +37,7 @@ setup(
         ('/etc', ['data/connme.conf']),
 	('/usr/share/polkit-1/actions', ['data/org.freedesktop.pkexec.connme.policy']),
     ],
-    scripts = ['bin/connme', 'bin/tether', 'bin/connme_polkit'],
+    scripts = ['bin/connme', 'bin/create_ap'],
     license="GPL",
     zip_safe=False,
     keywords='connme',
